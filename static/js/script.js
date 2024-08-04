@@ -1,86 +1,104 @@
-// Function to initialize the default values
 function initialize() {
   const defaultDecimal = 0;
   document.getElementById("decimalInput").value = defaultDecimal;
   convertFromDecimal();
 }
 
-// Function to convert from decimal input
 function convertFromDecimal() {
-  const decimalInput = document.getElementById("decimalInput").value;
-  const decimalNumber = parseInt(decimalInput);
-
-  if (isNaN(decimalNumber)) {
-    return;
+  const decimalInput = parseFloat(document.getElementById("decimalInput").value);
+  if (isNaN(decimalInput)) {
+      return;
   }
 
-  document.getElementById("binaryInput").value = formatBinary(
-    decimalNumber.toString(2)
-  );
-  document.getElementById("octalInput").value = decimalNumber.toString(8);
-  document.getElementById("hexInput").value = decimalNumber
-    .toString(16)
-    .toUpperCase();
+  document.getElementById("binaryInput").value = decimalToBinary(decimalInput);
+  document.getElementById("octalInput").value = decimalToOctal(decimalInput);
+  document.getElementById("hexInput").value = decimalToHex(decimalInput);
 }
 
-// Function to convert from binary input
 function convertFromBinary() {
-  const binaryInput = document
-    .getElementById("binaryInput")
-    .value.replace(/\s+/g, "");
-  const decimalNumber = parseInt(binaryInput, 2);
+  const binaryInput = document.getElementById("binaryInput").value.replace(/\s+/g, '');
+  const decimalNumber = binaryToDecimal(binaryInput);
 
   if (isNaN(decimalNumber)) {
-    return;
+      return;
   }
 
   document.getElementById("decimalInput").value = decimalNumber;
-  document.getElementById("octalInput").value = decimalNumber.toString(8);
-  document.getElementById("hexInput").value = decimalNumber
-    .toString(16)
-    .toUpperCase();
+  document.getElementById("octalInput").value = decimalToOctal(decimalNumber);
+  document.getElementById("hexInput").value = decimalToHex(decimalNumber);
 }
 
-// Function to convert from octal input
 function convertFromOctal() {
   const octalInput = document.getElementById("octalInput").value;
-  const decimalNumber = parseInt(octalInput, 8);
+  const decimalNumber = octalToDecimal(octalInput);
 
   if (isNaN(decimalNumber)) {
-    return;
+      return;
   }
 
   document.getElementById("decimalInput").value = decimalNumber;
-  document.getElementById("binaryInput").value = formatBinary(
-    decimalNumber.toString(2)
-  );
-  document.getElementById("hexInput").value = decimalNumber
-    .toString(16)
-    .toUpperCase();
+  document.getElementById("binaryInput").value = decimalToBinary(decimalNumber);
+  document.getElementById("hexInput").value = decimalToHex(decimalNumber);
 }
 
-// Function to convert from hexadecimal input
 function convertFromHex() {
   const hexInput = document.getElementById("hexInput").value.toUpperCase();
-  const decimalNumber = parseInt(hexInput, 16);
+  const decimalNumber = hexToDecimal(hexInput);
 
   if (isNaN(decimalNumber)) {
-    return;
+      return;
   }
 
   document.getElementById("decimalInput").value = decimalNumber;
-  document.getElementById("binaryInput").value = formatBinary(
-    decimalNumber.toString(2)
-  );
-  document.getElementById("octalInput").value = decimalNumber.toString(8);
+  document.getElementById("binaryInput").value = decimalToBinary(decimalNumber);
+  document.getElementById("octalInput").value = decimalToOctal(decimalNumber);
 }
 
-// Function to format binary with spaces every 4 bits
-function formatBinary(binaryString) {
-  return binaryString
-    .padStart(Math.ceil(binaryString.length / 4) * 4, "0")
-    .match(/.{1,4}/g)
-    .join(" ");
+function decimalToBinary(decimal) {
+  const integerPart = Math.floor(decimal);
+  const fractionalPart = decimal - integerPart;
+  let binaryInteger = integerPart.toString(2);
+
+  let binaryFractional = '';
+  let fraction = fractionalPart;
+  while (fraction > 0 && binaryFractional.length < 16) {
+      fraction *= 2;
+      const bit = Math.floor(fraction);
+      binaryFractional += bit.toString(2);
+      fraction -= bit;
+  }
+
+  return binaryInteger + (binaryFractional ? '.' + binaryFractional : '');
+}
+
+function binaryToDecimal(binary) {
+  const [integerPart, fractionalPart] = binary.split('.').map(part => part || '');
+  const integerDecimal = parseInt(integerPart, 2) || 0;
+
+  let fractionalDecimal = 0;
+  if (fractionalPart) {
+      for (let i = 0; i < fractionalPart.length; i++) {
+          fractionalDecimal += parseInt(fractionalPart[i], 2) * Math.pow(2, -(i + 1));
+      }
+  }
+
+  return integerDecimal + fractionalDecimal;
+}
+
+function decimalToOctal(decimal) {
+  return decimal.toString(8);
+}
+
+function octalToDecimal(octal) {
+  return parseFloat(parseInt(octal, 8).toString());
+}
+
+function decimalToHex(decimal) {
+  return decimal.toString(16).toUpperCase();
+}
+
+function hexToDecimal(hex) {
+  return parseFloat(parseInt(hex, 16).toString());
 }
 
 // Initialize values on page load
