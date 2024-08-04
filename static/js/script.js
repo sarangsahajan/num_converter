@@ -55,12 +55,13 @@ function convertFromHex() {
 }
 
 function decimalToBinary(decimal) {
-  const integerPart = Math.floor(decimal);
-  const fractionalPart = decimal - integerPart;
-  let binaryInteger = integerPart.toString(2);
+  if (isNaN(decimal)) return '';
+
+  const [integerPart, fractionalPart] = decimal.toString().split('.');
+  let binaryInteger = parseInt(integerPart, 10).toString(2);
 
   let binaryFractional = '';
-  let fraction = fractionalPart;
+  let fraction = parseFloat(`0.${fractionalPart}`) || 0;
   while (fraction > 0 && binaryFractional.length < 16) {
       fraction *= 2;
       const bit = Math.floor(fraction);
@@ -86,19 +87,67 @@ function binaryToDecimal(binary) {
 }
 
 function decimalToOctal(decimal) {
-  return decimal.toString(8);
+  if (isNaN(decimal)) return '';
+
+  const [integerPart, fractionalPart] = decimal.toString().split('.');
+  let octalInteger = parseInt(integerPart, 10).toString(8);
+
+  let octalFractional = '';
+  let fraction = parseFloat(`0.${fractionalPart}`) || 0;
+  while (fraction > 0 && octalFractional.length < 16) {
+      fraction *= 8;
+      const digit = Math.floor(fraction);
+      octalFractional += digit.toString(8);
+      fraction -= digit;
+  }
+
+  return octalInteger + (octalFractional ? '.' + octalFractional : '');
 }
 
 function octalToDecimal(octal) {
-  return parseFloat(parseInt(octal, 8).toString());
+  const [integerPart, fractionalPart] = octal.split('.').map(part => part || '');
+  const integerDecimal = parseInt(integerPart, 8) || 0;
+
+  let fractionalDecimal = 0;
+  if (fractionalPart) {
+      for (let i = 0; i < fractionalPart.length; i++) {
+          fractionalDecimal += parseInt(fractionalPart[i], 8) * Math.pow(8, -(i + 1));
+      }
+  }
+
+  return integerDecimal + fractionalDecimal;
 }
 
 function decimalToHex(decimal) {
-  return decimal.toString(16).toUpperCase();
+  if (isNaN(decimal)) return '';
+
+  const [integerPart, fractionalPart] = decimal.toString().split('.');
+  let hexInteger = parseInt(integerPart, 10).toString(16).toUpperCase();
+
+  let hexFractional = '';
+  let fraction = parseFloat(`0.${fractionalPart}`) || 0;
+  while (fraction > 0 && hexFractional.length < 16) {
+      fraction *= 16;
+      const digit = Math.floor(fraction);
+      hexFractional += digit.toString(16).toUpperCase();
+      fraction -= digit;
+  }
+
+  return hexInteger + (hexFractional ? '.' + hexFractional : '');
 }
 
 function hexToDecimal(hex) {
-  return parseFloat(parseInt(hex, 16).toString());
+  const [integerPart, fractionalPart] = hex.split('.').map(part => part || '');
+  const integerDecimal = parseInt(integerPart, 16) || 0;
+
+  let fractionalDecimal = 0;
+  if (fractionalPart) {
+      for (let i = 0; i < fractionalPart.length; i++) {
+          fractionalDecimal += parseInt(fractionalPart[i], 16) * Math.pow(16, -(i + 1));
+      }
+  }
+
+  return integerDecimal + fractionalDecimal;
 }
 
 // Initialize values on page load
